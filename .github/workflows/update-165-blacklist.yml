@@ -1,0 +1,35 @@
+name: Update 165 Blacklist
+
+on:
+  schedule:
+    # 每天 02:00 UTC = 台灣時間 10:00
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # 允許手動觸發
+
+jobs:
+  update-blacklist:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 需要 write 才能 commit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pandas requests
+
+      - name: Run blacklist updater
+        run: python scripts/fetch_165_blacklist.py
+
+      - name: Commit updated blacklist
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'data: update 165 anti-scam blacklist'
+          add: 'data/blacklist.json'
+          default_author: github_actions
